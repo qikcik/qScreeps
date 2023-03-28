@@ -15,6 +15,17 @@ export class ErrorMapper {
   // Cache previously mapped traces to improve performance
   public static cache: { [key: string]: string } = {};
 
+  public static sourceMappedCurrentFileAndLine(traceDeep : number = 0): string {
+
+    const err = new Error();
+    let trace = this.sourceMappedStackTrace(err);
+
+    let line = trace.split('\n')[2+traceDeep];
+    let result = line.slice(line.indexOf('(')+1, line.lastIndexOf(':'));
+    result = result.slice(7, result.length);
+    return result;
+  }
+
   /**
    * Generates a stack trace using a source map generate original symbol names.
    *
@@ -24,6 +35,7 @@ export class ErrorMapper {
    * @param {Error | string} error The error or original stack trace
    * @returns {string} The source-mapped stack trace
    */
+
   public static sourceMappedStackTrace(error: Error | string): string {
     const stack: string = error instanceof Error ? (error.stack as string) : error;
     if (Object.prototype.hasOwnProperty.call(this.cache, stack)) {
