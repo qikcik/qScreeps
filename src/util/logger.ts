@@ -16,7 +16,7 @@ GlobalConfig.extendDefaults({
   }
 });
 
-export type LogSeverity = "inf" | "wrn" | "err";
+export type LogSeverity = "inf" | "wrn" | "err" | "notImpl";
 
 function scoreSeverity(severity:LogSeverity) : number
 {
@@ -28,6 +28,8 @@ function scoreSeverity(severity:LogSeverity) : number
       return 2;
     case "err":
       return 3;
+    case "notImpl":
+      return 4;
   }
 }
 
@@ -41,6 +43,8 @@ function colorForLogSeverity(severity:LogSeverity) : string
       return "darkorange";
     case "err":
       return "orangered";
+    case "notImpl":
+      return "rebeccapurple";
   }
 }
 

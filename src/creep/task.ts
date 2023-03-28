@@ -1,0 +1,65 @@
+import {TaskType} from "./taskConst";
+
+export type TaskState = string;
+export interface TaskDataMem {
+
+}
+interface TaskMem {
+  type: TaskType,
+  state: TaskState,
+  data: TaskDataMem
+}
+
+export type StateReturn_ok = {
+  type: "ok",
+};
+
+export type StateReturn_finishStateMachine = {
+  type: "finish",
+};
+
+export type StateReturn_requestInstantNewState<State extends TaskState> = {
+  type: "requestInstantNewState",
+  newState: State,
+};
+
+export type StateReturn_requestNewStateInNextTick<State extends TaskState> = {
+  type: "requestNewStateInNextTick",
+  newState: State,
+};
+
+export type StateReturn_AbortStateMachine = {
+  type: "abort",
+  trace: Error,
+  reasonDescription: string,
+};
+
+export type StateReturn<State extends TaskState> =
+  StateReturn_ok |
+  StateReturn_finishStateMachine |
+  StateReturn_AbortStateMachine |
+  StateReturn_requestInstantNewState<State> |
+  StateReturn_requestNewStateInNextTick<State>;
+
+export class StateReturnBuilder<State extends TaskState>
+{
+  public ok ():StateReturn_ok  {return { type: "ok"}}
+  public finishStateMachine ():StateReturn_finishStateMachine  {return { type: "finish"}}
+  public abortStateMachine (reasonDescription:string):StateReturn_AbortStateMachine {return {type: "abort",reasonDescription: reasonDescription,trace: new Error()}}
+  public requestInstantNewState (newState:State):StateReturn_requestInstantNewState<State> {return {type: "requestInstantNewState",newState: newState}}
+  public requestNewStateInNextTick (newState:State):StateReturn_requestNewStateInNextTick<State>  {return {type: "requestNewStateInNextTick",newState: newState}}
+}
+
+export class TaskImpl<State extends TaskState,DataMem extends TaskDataMem> {
+  private readonly type: TaskType;
+  private readonly defaultState: State;
+  constructor(type:TaskType,defaultState:State) {
+    this.type = type;
+    this.defaultState = defaultState;
+  }
+
+  public registerState(state : TaskState, callback:(creep: Creep,dataMem:DataMem) => StateReturn<State> )
+  {
+
+  }
+}
