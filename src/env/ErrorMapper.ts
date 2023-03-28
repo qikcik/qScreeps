@@ -15,15 +15,18 @@ export class ErrorMapper {
   // Cache previously mapped traces to improve performance
   public static cache: { [key: string]: string } = {};
 
-  public static sourceMappedCurrentFileAndLine(traceDeep : number = 0): string {
+  public static sourceMappedCurrentFileAndLine(traceDeep : number = 0): {file:string, line:string}  {
 
     const err = new Error();
     let trace = this.sourceMappedStackTrace(err);
 
     let line = trace.split('\n')[2+traceDeep];
-    let result = line.slice(line.indexOf('(')+1, line.lastIndexOf(':'));
-    result = result.slice(7, result.length);
-    return result;
+    line = line.slice(line.indexOf('(')+1, line.lastIndexOf(':'));
+    let result = line.slice(7, line.length).split(":");
+    return {
+      file:result[0],
+      line:result[1]
+    };
   }
 
   /**

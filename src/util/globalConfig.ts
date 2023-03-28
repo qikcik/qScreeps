@@ -1,7 +1,7 @@
 /*
   EXAMPLE USAGE
 
-  declare module "core/config" {
+  declare module "util/globalConfig" {
   interface GlobalConfigMem {
       readonly ModuleName: {
         readonly flag: boolean
