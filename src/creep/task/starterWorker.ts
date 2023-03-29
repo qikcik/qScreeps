@@ -1,36 +1,30 @@
 import {StateReturnBuilder, TaskDataMem, TaskImpl} from "../task";
-import {TaskType} from "../taskConst";
 import * as AiUtility from "../ai/aiUtility";
+import {TaskType} from "../taskConst";
+import {Logger} from "../../util/logger";
 
-declare module "creep/taskConst" {
-  enum TaskType {
-    starterWorker = "starterWorker",
-  }
-}
-
-enum State {
+export enum State {
   default= "👋",
   extractFromSource= "🪓",
   withdrawToTarget = "🚮",
 }
-interface DataMem extends TaskDataMem{
-  source: Id<Source>,
-  target: Id<any>
+export interface DataMem extends TaskDataMem{
+  sourceID: string,
+  targetID: string
 }
 
-const moveTask = new TaskImpl<State,DataMem>(TaskType.starterWorker,State.default);
+export const starterWorkerTask = new TaskImpl<State,DataMem>(TaskType.starterWorker,State.default);
 const stateReturn = new StateReturnBuilder<State>();
 
-moveTask.registerState(State.default,(creep,data)=>{
+starterWorkerTask.registerState(State.default,(creep,data)=>{
   const forceExtractPolicy = 0.3;
   if(creep.store.getUsedCapacity() > creep.store.getCapacity() * forceExtractPolicy)
-    return stateReturn.requestInstantNewState(State.extractFromSource);
-  else
     return stateReturn.requestInstantNewState(State.withdrawToTarget);
+  return stateReturn.requestInstantNewState(State.extractFromSource);
 });
 
-moveTask.registerState(State.extractFromSource,(creep,data)=>{
-  let source = Game.getObjectById(data.source) as Source
+starterWorkerTask.registerState(State.extractFromSource,(creep,data)=>{
+  let source = Game.getObjectById(data.sourceID) as Source
 
   if (creep.store.getFreeCapacity() == 0 || source.energy == 0) {
     return stateReturn.requestInstantNewState(State.withdrawToTarget);
@@ -48,8 +42,8 @@ moveTask.registerState(State.extractFromSource,(creep,data)=>{
   return stateReturn.ok();
 });
 
-moveTask.registerState(State.withdrawToTarget,(creep,data)=>{
-  let target = Game.getObjectById(data.target) as AnyStructure
+starterWorkerTask.registerState(State.withdrawToTarget,(creep,data)=>{
+  let target = Game.getObjectById(data.targetID) as AnyStructure
   let transferStatus = creep.transfer(target,RESOURCE_ENERGY);
   if(transferStatus == ERR_NOT_IN_RANGE) {
     if( AiUtility.creepMoveTo(creep,target) == AiUtility.AiCreepMoveToStatus.success )
@@ -64,5 +58,6 @@ moveTask.registerState(State.withdrawToTarget,(creep,data)=>{
 
   return stateReturn.ok();
 });
+
 
 

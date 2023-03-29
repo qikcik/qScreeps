@@ -4,10 +4,24 @@ export type TaskState = string;
 export interface TaskDataMem {
 
 }
-interface TaskMem {
+export interface TaskMem {
   type: TaskType,
   state: TaskState,
   data: TaskDataMem
+}
+
+export function CreateTaskMem<
+  State extends TaskState,
+  Data extends TaskDataMem
+>
+(
+  type: TaskType,
+  state:State,
+  data:Data,
+  )
+  : TaskMem
+{
+  return {type:type,state:state,data:data};
 }
 
 export type StateReturn_ok = {
@@ -51,15 +65,22 @@ export class StateReturnBuilder<State extends TaskState>
 }
 
 export class TaskImpl<State extends TaskState,DataMem extends TaskDataMem> {
-  private readonly type: TaskType;
-  private readonly defaultState: State;
+  public readonly type: TaskType;
+  public readonly defaultState: State;
+  public readonly states : Map<State,(creep: Creep,dataMem:DataMem) => StateReturn<State>>;
   constructor(type:TaskType,defaultState:State) {
     this.type = type;
     this.defaultState = defaultState;
+    this.states = new Map<State,(creep: Creep,dataMem:DataMem) => StateReturn<State>>;
   }
 
-  public registerState(state : TaskState, callback:(creep: Creep,dataMem:DataMem) => StateReturn<State> )
+  public registerState(state : State, callback:(creep: Creep,dataMem:DataMem) => StateReturn<State> )
   {
+    this.states.set(state,callback);
+  }
 
+  public getState(state : State)
+  {
+    return this.states.get(state);
   }
 }

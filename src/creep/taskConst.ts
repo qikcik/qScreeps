@@ -1,4 +1,4 @@
 
 export enum TaskType {
-  Move
+  starterWorker = "🦺"
 }
